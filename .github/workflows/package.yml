@@ -10,16 +10,16 @@ jobs:
         image: termux/package-builder
     strategy:
       matrix:
-        target_arch: [aarch64, arm, i686, x86_64]
+        target_arch: [aarch64, x86_64]
     timeout-minutes: 30
     steps:
       - name: Clone repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: termux/termux-packages
           fetch-depth: 1000
       - name: Clone nginx-rtmp
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           path: packages/nginx-rtmp
       - name: Configure environment
@@ -31,7 +31,7 @@ jobs:
         run: |
           ./build-package.sh -I -a ${{ matrix.target_arch }} nginx-rtmp
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: debs-${{ matrix.target_arch }}
           path: output/*.deb
@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@latest
       - name: Merge artifacts
         run: |
           mkdir debs
@@ -53,7 +53,7 @@ jobs:
         run: |
           termux-apt-repo ./debs ./public
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@latest
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
