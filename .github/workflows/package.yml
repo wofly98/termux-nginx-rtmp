@@ -10,7 +10,7 @@ jobs:
         image: termux/package-builder
     strategy:
       matrix:
-        target_arch: [aarch64, x86_64]
+        target_arch: [aarch64]
     timeout-minutes: 30
     steps:
       - name: Clone repository
@@ -21,7 +21,7 @@ jobs:
       - name: Clone nginx-rtmp
         uses: actions/checkout@v4
         with:
-          path: packages/nginx-rtmp
+          path: packages/ngx
       - name: Configure environment
         run: |
           ./scripts/setup-android-sdk.sh
@@ -29,10 +29,10 @@ jobs:
         env:
           TERMUX_DEBUG: false
         run: |
-          ./build-package.sh -I -a ${{ matrix.target_arch }} nginx-rtmp
+          ./build-package.sh -I -a ${{ matrix.target_arch }} ngx
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: debs-${{ matrix.target_arch }}
-          path: output/*.deb
+          path: output/*
 

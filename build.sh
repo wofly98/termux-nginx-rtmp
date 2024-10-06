@@ -3,7 +3,7 @@ TERMUX_PKG_DESCRIPTION="Lightweight HTTP server"
 TERMUX_PKG_LICENSE="BSD 2-Clause"
 TERMUX_PKG_MAINTAINER="@muxfd"
 TERMUX_PKG_DEPENDS="libandroid-glob, libcrypt, pcre, openssl, zlib"
-TERMUX_PKG_VERSION="1.25.1"
+TERMUX_PKG_VERSION="1.14.0"
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_SERVICE_SCRIPT=("nginx" 'mkdir -p ~/.nginx\nif [ -f "$HOME/.nginx/nginx.conf" ]; then CONFIG="$HOME/.nginx/nginx.conf"; else CONFIG="$PREFIX/etc/nginx/nginx.conf"; fi\nexec nginx -p ~/.nginx -g "daemon off;" -c $CONFIG 2>&1')
 TERMUX_PKG_CONFFILES="
@@ -58,20 +58,20 @@ termux_step_configure() {
 		--with-pcre-jit \
 		--with-threads \
 		--with-ipv6 \
-    --sbin-path=sbin/juno_ngx \
-    --conf-path=conf/juno_ngx.conf \
-    --http-log-path=logs/proxy_access.log \
-    --pid-path=sbin/.juno_ngx.pid \
-    --lock-path=sbin/.juno_ngx.lock \
+    --sbin-path=sbin/nginx \
+    --conf-path=conf/nginx.conf \
+    --pid-path=sbin/.nginx.pid \
+    --lock-path=sbin/.nginx.lock \
     --error-log-path=logs/proxy_error.log \
+    --http-log-path=logs/proxy_access.log \
 		--http-client-body-temp-path="$TERMUX_PREFIX/var/lib/nginx/client-body" \
 		--http-proxy-temp-path="$TERMUX_PREFIX/var/lib/nginx/proxy" \
 		--http-fastcgi-temp-path="$TERMUX_PREFIX/var/lib/nginx/fastcgi" \
 		--http-scgi-temp-path="$TERMUX_PREFIX/var/lib/nginx/scgi" \
 		--http-uwsgi-temp-path="$TERMUX_PREFIX/var/lib/nginx/uwsgi" \
-    --add-dynamic-module=./modules/vts \
-    --add-dynamic-module=./modules/purge \
-    --add-dynamic-module=./modules/sorted_args \
+    --add-module=./modules/vts \
+    --add-module=./modules/purge \
+    --add-module=./modules/sorted_args \
 		--with-http_auth_request_module \
 		--with-http_ssl_module \
 		--with-http_v2_module \
@@ -88,7 +88,6 @@ termux_step_configure() {
     --with-http_dav_module \
     --with-http_flv_module \
     --with-http_mp4_module \
-    \
     --with-stream \
     --with-stream_realip_module \
     --with-stream_ssl_module \
