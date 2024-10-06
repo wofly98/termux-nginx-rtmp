@@ -34,5 +34,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: debs-${{ matrix.target_arch }}
-          path: packages/ngx/*
+          path: /data/data/com.termux/files/home/ngx/*
 
