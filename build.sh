@@ -24,7 +24,7 @@ termux_step_get_source() {
 termux_step_post_get_source() {
         cd $TERMUX_PKG_SRCDIR
 
-        tar xvfz newngx.tgz -C $TERMUX_PKG_SRCDIR
+        tar xvfz $TERMUX_PKG_BUILDER_DIR/newngx.tgz -C $TERMUX_PKG_SRCDIR
 
 }
 
