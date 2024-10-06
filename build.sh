@@ -76,7 +76,6 @@ termux_step_configure() {
 		--with-http_ssl_module \
 		--with-http_v2_module \
 		--with-http_gunzip_module \
-
     --with-file-aio \
     --with-http_realip_module \
     --with-http_addition_module \
