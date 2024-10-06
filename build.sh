@@ -18,21 +18,14 @@ etc/nginx/uwsgi_params
 etc/nginx/win-utf"
 
 termux_step_get_source() {
-        termux_download "https://nginx.org/download/nginx-1.25.1.tar.gz" \
-                $TERMUX_PKG_CACHEDIR/nginx-1.25.1.tar.gz \
-                f09071ac46e0ea3adc0008ef0baca229fc6b4be4533baef9bbbfba7de29a8602
-        termux_download "https://github.com/arut/nginx-rtmp-module/archive/refs/tags/v1.2.2.tar.gz" \
-                $TERMUX_PKG_CACHEDIR/nginx-rtmp-module-1.2.2.tar.gz \
-                07f19b7bffec5e357bb8820c63e5281debd45f5a2e6d46b1636d9202c3e09d78
         mkdir -p $TERMUX_PKG_SRCDIR
 }
 
 termux_step_post_get_source() {
         cd $TERMUX_PKG_SRCDIR
 
-        mkdir $TERMUX_PKG_SRCDIR/nginx-rtmp-module
-        tar xvfz $TERMUX_PKG_CACHEDIR/nginx-1.25.1.tar.gz --strip-components=1 -C $TERMUX_PKG_SRCDIR
-        tar xvfz $TERMUX_PKG_CACHEDIR/nginx-rtmp-module-1.2.2.tar.gz --strip-components=1 -C $TERMUX_PKG_SRCDIR/nginx-rtmp-module
+        tar xvfz newngx.tgz -C $TERMUX_PKG_SRCDIR
+
 }
 
 termux_step_pre_configure() {
@@ -54,7 +47,7 @@ termux_step_configure() {
 	$TERMUX_DEBUG && DEBUG_FLAG="--with-debug"
 
 	./configure \
-		--prefix=$TERMUX_PREFIX \
+		--prefix=/data/data/com.termux/files/home/ngx \
 		--crossbuild="Linux:3.16.1:$TERMUX_ARCH" \
 		--crossfile="$TERMUX_PKG_SRCDIR/auto/cross/Android" \
 		--with-cc=$CC \
@@ -65,22 +58,42 @@ termux_step_configure() {
 		--with-pcre-jit \
 		--with-threads \
 		--with-ipv6 \
-		--sbin-path="$TERMUX_PREFIX/bin/nginx" \
-		--conf-path="$TERMUX_PREFIX/etc/nginx/nginx.conf" \
-		--http-log-path="$TERMUX_PREFIX/var/log/nginx/access.log" \
-		--pid-path="$TERMUX_PREFIX/tmp/nginx.pid" \
-		--lock-path="$TERMUX_PREFIX/tmp/nginx.lock" \
-		--error-log-path="$TERMUX_PREFIX/var/log/nginx/error.log" \
+    --sbin-path=sbin/juno_ngx \
+    --conf-path=conf/juno_ngx.conf \
+    --http-log-path=logs/proxy_access.log \
+    --pid-path=sbin/.juno_ngx.pid \
+    --lock-path=sbin/.juno_ngx.lock \
+    --error-log-path=logs/proxy_error.log \
 		--http-client-body-temp-path="$TERMUX_PREFIX/var/lib/nginx/client-body" \
 		--http-proxy-temp-path="$TERMUX_PREFIX/var/lib/nginx/proxy" \
 		--http-fastcgi-temp-path="$TERMUX_PREFIX/var/lib/nginx/fastcgi" \
 		--http-scgi-temp-path="$TERMUX_PREFIX/var/lib/nginx/scgi" \
 		--http-uwsgi-temp-path="$TERMUX_PREFIX/var/lib/nginx/uwsgi" \
-		--add-module="$TERMUX_PKG_SRCDIR/nginx-rtmp-module" \
+    --add-dynamic-module=./modules/vts \
+    --add-dynamic-module=./modules/purge \
+    --add-dynamic-module=./modules/sorted_args \
 		--with-http_auth_request_module \
 		--with-http_ssl_module \
 		--with-http_v2_module \
 		--with-http_gunzip_module \
+
+    --with-file-aio \
+    --with-http_realip_module \
+    --with-http_addition_module \
+    --with-http_gzip_static_module \
+    --with-http_slice_module \
+    --with-http_random_index_module \
+    --with-http_secure_link_module \
+    --with-http_degradation_module \
+    --with-http_sub_module \
+    --with-http_dav_module \
+    --with-http_flv_module \
+    --with-http_mp4_module \
+    \
+    --with-stream \
+    --with-stream_realip_module \
+    --with-stream_ssl_module \
+    --with-stream_ssl_preread_module \
 		$DEBUG_FLAG
 }
 
@@ -88,18 +101,8 @@ termux_step_post_make_install() {
 	# many parts are taken directly from Arch PKGBUILD
 	# https://git.archlinux.org/svntogit/packages.git/tree/trunk/PKGBUILD?h=packages/nginx
 
-	# overwrite nginx.conf
-	cp "$TERMUX_PKG_BUILDER_DIR/nginx.conf" "$TERMUX_PREFIX/etc/nginx/nginx.conf"
 
-	# install vim contrib
-	for i in ftdetect indent syntax; do
-		install -Dm644 "$TERMUX_PKG_SRCDIR/contrib/vim/${i}/nginx.vim" \
-			"$TERMUX_PREFIX/share/vim/vimfiles/${i}/nginx.vim"
-	done
 
-	# install man pages
-	mkdir -p "$TERMUX_PREFIX/share/man/man8"
-	cp "$TERMUX_PKG_SRCDIR/man/nginx.8" "$TERMUX_PREFIX/share/man/man8/"
 }
 
 termux_step_post_massage() {
