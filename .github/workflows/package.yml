@@ -36,24 +36,3 @@ jobs:
           name: debs-${{ matrix.target_arch }}
           path: output/*.deb
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@latest
-      - name: Merge artifacts
-        run: |
-          mkdir debs
-          find . -name '*.deb' | xargs -i cp {} ./debs
-          ls -R
-      - name: Install termux-apt-repo
-        run: python3 -m pip install termux-apt-repo
-      - name: Package
-        run: |
-          termux-apt-repo ./debs ./public
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@latest
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
